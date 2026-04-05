@@ -26,6 +26,7 @@
 
 ```bash
 git clone https://github.com/ваш-логин/Avito_Test_Task.git
+cd Avito_Test_Task
 cd my-app
 ```
 
