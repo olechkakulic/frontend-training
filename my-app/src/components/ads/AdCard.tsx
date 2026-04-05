@@ -1,4 +1,4 @@
-import { Badge, Card, Container, Image, Stack, Text } from "@mantine/core";
+import { Badge, Card,Image, Stack, Text } from "@mantine/core";
 import { Link } from "react-router-dom";
 
 type AdCardProps = {
@@ -37,7 +37,7 @@ export const AdCard = ({
     >
       <Card.Section>
         <Image
-          src="https://placehold.co/600x400?text=No+image"
+          src="/images/Главная.png"
           h={180}
           alt={title}
         />
@@ -51,8 +51,8 @@ export const AdCard = ({
         </Text>
         <Text>{price}</Text>
         {needsRevision && (
-          <Badge variant="dot" color="orange" bg="orange.1" mt="auto">
-            Требуется доработка
+          <Badge variant="dot" color="orange" bg="orange.1" mt="auto" c='orange'>
+            Требует доработок
           </Badge>
         )}
       </Stack>

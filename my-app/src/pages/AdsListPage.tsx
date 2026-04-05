@@ -21,6 +21,8 @@ import { IconSearch } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { useEffect, useState } from "react";
 import { Pagination } from "@mantine/core";
+import { fetchItems } from "../api/items";
+import { buildItemsUrl } from "../utils/buildItemsUrl";
 
 export const AdsListPage = () => {
   const icon = <IconSearch size={16} />;
@@ -39,56 +41,33 @@ export const AdsListPage = () => {
   const [searchState, setSearchState] = useState("");
   const paginatedAds = ads;
   const [onlyNeedsRevesion, setOnlyNeedRevesion] = useState(false);
-
-  const buildUrl = () => {
-    const params = new URLSearchParams();
-    params.append("limit", String(ITEMS_PER_PAGE));
-    params.append("skip", String((currentPage - 1) * ITEMS_PER_PAGE));
-    if (sortBy === "newest") {
-      params.append("sortColumn", "createdAt");
-      params.append("sortDirection", "desc");
-    } else if (sortBy === "oldest") {
-      params.append("sortColumn", "createdAt");
-      params.append("sortDirection", "asc");
-    } else if (sortBy === "price-upp") {
-      params.append("sortColumn", "price");
-      params.append("sortDirection", "desc");
-    } else if (sortBy === "price-down") {
-      params.append("sortColumn", "price");
-      params.append("sortDirection", "asc");
-    } else if (sortBy === "name-first") {
-      params.append("sortColumn", "title");
-      params.append("sortDirection", "asc");
-    } else if (sortBy === "name-down") {
-      params.append("sortColumn", "title");
-      params.append("sortDirection", "desc");
-    }
-    if (searchState.trim()) {
-      params.append("q", searchState.trim());
-    }
-    const categories = [];
-    if (isAutoChecked) categories.push("auto");
-    if (isElectronicsChecked) categories.push("electronics");
-    if (isRealEstateChecked) categories.push("real_estate");
-
-    if (categories.length > 0) {
-      params.append("categories", categories.join(","));
-    }
-
-    // Только доработки
-    if (onlyNeedsRevesion) {
-      params.append("needsRevision", "true");
-    }
-    return `http://localhost:8080/items?${params.toString()}`;
+  const handleResetFilters = () => {
+    setCurrentPage(1);
+    setSearchState("");
+    setSortBy("newest");
+    setIsAutoChecked(false);
+    setIsElectronicsChecked(false);
+    setIsRealEstateChecked(false);
+    setOnlyNeedRevesion(false);
   };
   useEffect(() => {
-    async function fetchAds() {
+    async function loadAds() {
       try {
         setIsLoading(true);
         setError("");
 
-        const response = await fetch(buildUrl());
-        const data = await response.json();
+        const url = buildItemsUrl({
+          currentPage,
+          itemsPerPage: ITEMS_PER_PAGE,
+          sortBy,
+          searchState,
+          isAutoChecked,
+          isElectronicsChecked,
+          isRealEstateChecked,
+          onlyNeedsRevision: onlyNeedsRevesion,
+        });
+
+        const data = await fetchItems(url);
 
         console.log(data);
         setAds(data.items);
@@ -100,7 +79,8 @@ export const AdsListPage = () => {
         setIsLoading(false);
       }
     }
-    fetchAds();
+
+    loadAds();
   }, [
     currentPage,
     sortBy,
@@ -110,9 +90,10 @@ export const AdsListPage = () => {
     isRealEstateChecked,
     onlyNeedsRevesion,
   ]);
+
   return (
     <Container size="xl" w="100%" px="md" py="xl">
-      <Stack gap="lg" w='100%'>
+      <Stack gap="lg" w="100%">
         <Stack style={{ flexShrink: 0 }} align="flex-start" gap={4}>
           <Title order={1}>Мои объявления</Title>
           <Text>Всего объявлений: {totalItems}</Text>
@@ -121,6 +102,7 @@ export const AdsListPage = () => {
           <TextInput
             placeholder="Найти объявление"
             rightSection={icon}
+            value={searchState}
             onChange={(event) => {
               setCurrentPage(1);
               setSearchState(event.currentTarget.value);
@@ -136,12 +118,12 @@ export const AdsListPage = () => {
               { value: "name-first", label: "По названию (от А до Я)" },
               { value: "name-down", label: "По названию (от Я до А)" },
             ]}
-            defaultValue="newest"
+            value={sortBy}
             style={{ flex: 1 }}
-            onChange={(value) => setSortBy(value)}
+            onChange={(value) => setSortBy(value || "newest")}
           />
         </Group>
-        <Flex align="flex-start" gap="md" w='100%'>
+        <Flex align="flex-start" gap="md" w="100%">
           <Stack>
             <Card w={200} withBorder radius="md" p="md">
               <Stack align="flex-start" gap="md">
@@ -209,7 +191,7 @@ export const AdsListPage = () => {
               </Stack>
             </Card>
 
-            <Button variant="white" color="gray">
+            <Button variant="white" color="gray" onClick={handleResetFilters}>
               Сбросить фильтры
             </Button>
           </Stack>
@@ -226,7 +208,7 @@ export const AdsListPage = () => {
                 cols={{ base: 1, xs: 2, sm: 3, md: 4, lg: 5 }}
                 spacing="md"
               >
-                {paginatedAds.map((ad, index) => (
+                {paginatedAds.map((ad) => (
                   <AdCard
                     key={ad.id}
                     id={ad.id}

@@ -1,0 +1,5 @@
+.control[data-active] {
+    background-color: transparent !important;
+    border: 1px solid #74c0fc !important;
+    color: #74c0fc !important;
+  }

@@ -1,6 +1,5 @@
 import {
   Button,
-  Card,
   Container,
   Divider,
   Grid,
@@ -8,35 +7,22 @@ import {
   Stack,
   Text,
   Title,
+  Alert,
+  Box,
+  Image,
 } from "@mantine/core";
 import { IconEdit } from "@tabler/icons-react";
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-
-type Ad = {
-  id: number;
-  title: string;
-  description?: string;
-  price: number | null;
-  createdAt: string;
-  updatedAt: string;
-  needsRevision: boolean;
-  category: "auto" | "real_estate" | "electronics";
-  params: {
-    type?: string;
-    brand?: string;
-    model?: string;
-    address?: string;
-    area?: number;
-    floor?: number;
-    yearOfManufacture?: number;
-    transmission?: string;
-    mileage?: number;
-    enginePower?: number;
-    condition?: string;
-    color?: string;
-  };
-};
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import {
+  CATEGORY_FIELDS,
+  PARAM_LABELS,
+  VALUE_LABELS,
+} from "../constants/labels";
+import { formatDate } from "../utils/utils";
+import { IconAlertCircle } from "@tabler/icons-react";
+import type { Ad } from "../types/types";
+import { fetchItemById } from "../api/items";
 
 export const AdDetailsPage = () => {
   const { id } = useParams();
@@ -45,7 +31,7 @@ export const AdDetailsPage = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    async function fetchAd() {
+    async function loadAd() {
       if (!id) {
         setError("Объявление не найдено");
         setIsLoading(false);
@@ -56,13 +42,7 @@ export const AdDetailsPage = () => {
         setIsLoading(true);
         setError("");
 
-        const response = await fetch(`http://localhost:8080/items/${id}`);
-
-        if (!response.ok) {
-          throw new Error("Request failed");
-        }
-
-        const data = await response.json();
+        const data = await fetchItemById(id);
         setAd(data);
       } catch (err) {
         setError("Не удалось загрузить объявление");
@@ -72,7 +52,7 @@ export const AdDetailsPage = () => {
       }
     }
 
-    fetchAd();
+    loadAd();
   }, [id]);
 
   if (isLoading) {
@@ -99,49 +79,107 @@ export const AdDetailsPage = () => {
     );
   }
 
+  const emptyFields = CATEGORY_FIELDS[ad.category].filter((key) => {
+    const value = ad.params[key as keyof typeof ad.params];
+    return value === undefined || value === null || value === "";
+  });
+
+  if (!ad.description || ad.description.trim() === "") {
+    emptyFields.push("Описание");
+  }
+
   return (
     <Container size="xl" w="100%" px="md" py="xl">
       <Group justify="space-between" align="flex-start" w="100%">
         <Stack>
           <Title fz={30}>{ad.title}</Title>
-          <Button variant="filled" rightSection={<IconEdit size={16} />}>
+          <Button
+            component={Link}
+            to={`/ads/${ad.id}/edit`}
+            variant="filled"
+            rightSection={<IconEdit size={16} />}
+          >
             Редактировать
           </Button>
         </Stack>
-        <Stack>
+
+        <Stack align="flex-end">
           <Title fz={30}>{ad.price} Р</Title>
           <Stack align="flex-end" gap={2}>
-            <Text fz={16}>Опубликовано: {ad.createdAt}</Text>
-            <Text fz={16}>Отредактировано: {ad.updatedAt}</Text>
+            <Text fz={16} c="#848388">
+              Опубликовано: {formatDate(ad.createdAt)}
+            </Text>
+            {ad.updatedAt && ad.updatedAt !== ad.createdAt && (
+              <Text fz={16} c="#848388">
+                Отредактировано: {formatDate(ad.updatedAt)}
+              </Text>
+            )}
           </Stack>
         </Stack>
       </Group>
-      <Divider />
-      <Grid gutter="xl">
+
+      <Divider mt={36} />
+
+      <Grid mt="md">
         <Grid.Col span={5}>
-          <Card w="100%" h={360} withBorder radius="md">
-            <Text>тут будет картинка</Text>
-          </Card>
+          <Image src="/images/Главная.png" h={360} alt={ad.title} />
         </Grid.Col>
 
-        <Grid.Col span={4}>
+        <Grid.Col span={5}>
           <Stack gap="md">
+            {ad.needsRevision && emptyFields.length > 0 && (
+              <Alert
+                variant="light"
+                color="orange"
+                title="Требуются доработки"
+                icon={<IconAlertCircle color="orange" />}
+                styles={{
+                  root: {
+                    backgroundColor: "#f9f1e6",
+                    border: "none",
+                    borderRadius: "8px",
+                    padding: "12px 16px",
+                    boxShadow:
+                      "0 9px 28px 8px rgba(0, 0, 0, 0.05), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12)",
+                  },
+                  title: {
+                    color: "#000",
+                    fontSize: "16px",
+                    fontWeight: 600,
+                  },
+                }}
+              >
+                <Text size="sm" mb="xs" c="black">
+                  У объявления не заполнены поля:
+                </Text>
+                <Box component="ul" m={0} pl={30}>
+                  {emptyFields.map((field) => (
+                    <li key={field}>
+                      <Text size="sm" c="black">
+                        {PARAM_LABELS[field as keyof typeof PARAM_LABELS] ||
+                          field}
+                      </Text>
+                    </li>
+                  ))}
+                </Box>
+              </Alert>
+            )}
+
             <Title order={2}>Характеристики</Title>
 
-            <Group justify="space-between" w="100%">
-              <Text fw={500}>Тип</Text>
-              <Text c="dimmed">{ad.params.type ?? "—"}</Text>
-            </Group>
+            {Object.entries(ad.params).map(([key, value]) => {
+              if (value === undefined || value === null || value === "")
+                return null;
 
-            <Group justify="space-between" w="100%">
-              <Text fw={500}>Бренд</Text>
-              <Text c="dimmed">{ad.params.brand ?? "—"}</Text>
-            </Group>
-
-            <Group justify="space-between" w="100%">
-              <Text fw={500}>Модель</Text>
-              <Text c="dimmed">{ad.params.model ?? "—"}</Text>
-            </Group>
+              return (
+                <Group justify="space-between" w="100%" key={key}>
+                  <Text fw={500}>{PARAM_LABELS[key] || key}</Text>
+                  <Text c="dimmed">
+                    {VALUE_LABELS[value as string] || value.toString()}
+                  </Text>
+                </Group>
+              );
+            })}
           </Stack>
         </Grid.Col>
 
