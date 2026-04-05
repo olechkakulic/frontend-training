@@ -26,7 +26,7 @@
 
 ```bash
 git clone https://github.com/ваш-логин/Avito_Test_Task.git
-cd Avito_Test_Task
+cd my-app
 ```
 
 ### 2. Установка зависимостей клиента
@@ -81,7 +81,7 @@ ollama serve
 После этого приложение сможет отправлять запросы к [http://localhost:11434/api/generate](http://localhost:11434/api/generate).
 
 ## Структура проекта
-
+```text
 src/
 ├── api/               # HTTP-запросы (axios)
 ├── components/        # Переиспользуемые компоненты
@@ -96,7 +96,7 @@ src/
 ├── App.tsx
 ├── main.tsx
 └── index.css
-
+```
 ## Основные страницы
 
 ### 1. Список объявлений /ads
