@@ -31,11 +31,10 @@ import {
 import { IconRefresh, IconBulb } from "@tabler/icons-react";
 import { LabelWithLeftAsterisk } from "../components/edit/LabelWithLeftAsterisk";
 import { notifications } from "@mantine/notifications";
-import {
-  ClearableTextInput,
-} from "../components/edit/ClearableField";
-type Category = "auto" | "real_estate" | "electronics";
+import { ClearableTextInput } from "../components/edit/ClearableField";
+import classes from "./AdEditPage.module.css";
 
+type Category = "auto" | "real_estate" | "electronics";
 type ChatMessage = {
   role: "user" | "assistant";
   text: string;
@@ -56,7 +55,6 @@ export const AdEditPage = () => {
   const [descriptionPopoverOpened, setDescriptionPopoverOpened] =
     useState(false);
 
-  const [aiPrice, setAiPrice] = useState<number | null>(null);
   const [aiResponse, setAiResponse] = useState("");
   const [isAiPriceLoading, setIsAiPriceLoading] = useState(false);
 
@@ -182,7 +180,6 @@ export const AdEditPage = () => {
     }
 
     const parsedPrice = parseInt(match[1], 10);
-    setAiPrice(parsedPrice);
     form.setFieldValue("price", parsedPrice);
 
     notifications.show({
@@ -273,9 +270,11 @@ export const AdEditPage = () => {
 
       navigate(`/ads/${id}`);
     } catch (err) {
+      console.log(err);
       notifications.show({
         title: "Ошибка сохранения",
-        message: "При попытке сохранить изменения произошла ошибка. Попробуйте ещё раз или зайдите позже.",
+        message:
+          "При попытке сохранить изменения произошла ошибка. Попробуйте ещё раз или зайдите позже.",
         color: "red",
       });
     }
@@ -303,7 +302,7 @@ export const AdEditPage = () => {
       w="100%"
       px="md"
       py="xl"
-      style={{ position: "relative" }}
+      className={classes.rootContainer}
     >
       <form onSubmit={form.onSubmit(handleSave)}>
         <Stack gap="lg">
@@ -386,7 +385,7 @@ export const AdEditPage = () => {
                         withBorder
                         radius="md"
                         p="md"
-                        style={{ border: "none", boxShadow: "none" }}
+                        className={classes.nakedCard}
                       >
                         <Stack gap="sm">
                           <Text fw={600} size="sm">
@@ -495,7 +494,7 @@ export const AdEditPage = () => {
                         withBorder
                         radius="md"
                         p="md"
-                        style={{ border: "none", boxShadow: "none" }}
+                        className={classes.nakedCard}
                       >
                         <Stack gap="sm">
                           <Text fw={600} size="sm">
@@ -561,15 +560,7 @@ export const AdEditPage = () => {
           shadow="md"
           radius="md"
           p="md"
-          style={{
-            position: "fixed",
-            right: 24,
-            bottom: 24,
-            width: 360,
-            maxWidth: "calc(100vw - 32px)",
-            zIndex: 1000,
-            background: "white",
-          }}
+          className={classes.chatCard}
         >
           <Stack gap="sm">
             <Group justify="space-between" align="center">
@@ -578,13 +569,7 @@ export const AdEditPage = () => {
 
             <Divider />
 
-            <Stack
-              gap="xs"
-              style={{
-                maxHeight: 260,
-                overflowY: "auto",
-              }}
-            >
+            <Stack gap="xs" className={classes.messagesStack}>
               {chatMessages.length === 0 ? (
                 <Text c="dimmed" size="sm">
                   Задайте вопрос по текущему объявлению
@@ -596,11 +581,7 @@ export const AdEditPage = () => {
                     p="xs"
                     radius="md"
                     bg={msg.role === "user" ? "gray.1" : "orange.0"}
-                    style={{
-                      alignSelf:
-                        msg.role === "user" ? "flex-end" : "flex-start",
-                      maxWidth: "90%",
-                    }}
+                    className={`${classes.messageCard} ${msg.role === "user" ? classes.userMessageCard : classes.assistantMessageCard}`}
                   >
                     <Text size="sm">{msg.text}</Text>
                   </Card>
@@ -640,12 +621,7 @@ export const AdEditPage = () => {
 
       {!isChatOpen && (
         <Button
-          style={{
-            position: "fixed",
-            right: 24,
-            bottom: 24,
-            zIndex: 1000,
-          }}
+          className={classes.openChatButton}
           onClick={() => setIsChatOpen(true)}
         >
           Открыть чат с AI

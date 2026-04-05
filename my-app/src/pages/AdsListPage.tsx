@@ -15,7 +15,9 @@ import {
   Switch,
   Stack,
   Flex,
+  Loader,
 } from "@mantine/core";
+import classes from "./AdsListPage.module.css"; // импорт CSS-модуля
 import { Container } from "@mantine/core";
 import { IconSearch } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
@@ -23,33 +25,44 @@ import { useEffect, useState } from "react";
 import { Pagination } from "@mantine/core";
 import { fetchItems } from "../api/items";
 import { buildItemsUrl } from "../utils/buildItemsUrl";
+import { useAdsListStore } from "../store/useAdsListStore";
+import type { Ad } from "../types/types";
 
 export const AdsListPage = () => {
   const icon = <IconSearch size={16} />;
-  const [totalItems, setTotalItems] = useState(0);
   const ITEMS_PER_PAGE = 10;
-  const [ads, setAds] = useState([]);
-  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+
+  const [totalItems, setTotalItems] = useState(0);
+  const [ads, setAds] = useState<Ad[]>([]);
   const [opened, { toggle }] = useDisclosure(true);
-  const [isAutoChecked, setIsAutoChecked] = useState(false);
-  const [isElectronicsChecked, setIsElectronicsChecked] = useState(false);
-  const [isRealEstateChecked, setIsRealEstateChecked] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-  const [sortBy, setSortBy] = useState("newest");
-  const [searchState, setSearchState] = useState("");
+
+  const {
+    currentPage,
+    sortBy,
+    searchState,
+    isAutoChecked,
+    isElectronicsChecked,
+    isRealEstateChecked,
+    onlyNeedsRevision,
+    setCurrentPage,
+    setSortBy,
+    setSearchState,
+    setIsAutoChecked,
+    setIsElectronicsChecked,
+    setIsRealEstateChecked,
+    setOnlyNeedsRevision,
+    resetFilters,
+  } = useAdsListStore();
+
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
   const paginatedAds = ads;
-  const [onlyNeedsRevesion, setOnlyNeedRevesion] = useState(false);
+
   const handleResetFilters = () => {
-    setCurrentPage(1);
-    setSearchState("");
-    setSortBy("newest");
-    setIsAutoChecked(false);
-    setIsElectronicsChecked(false);
-    setIsRealEstateChecked(false);
-    setOnlyNeedRevesion(false);
+    resetFilters();
   };
+
   useEffect(() => {
     async function loadAds() {
       try {
@@ -64,12 +77,10 @@ export const AdsListPage = () => {
           isAutoChecked,
           isElectronicsChecked,
           isRealEstateChecked,
-          onlyNeedsRevision: onlyNeedsRevesion,
+          onlyNeedsRevision,
         });
 
         const data = await fetchItems(url);
-
-        console.log(data);
         setAds(data.items);
         setTotalItems(data.total);
       } catch (err) {
@@ -88,16 +99,17 @@ export const AdsListPage = () => {
     isAutoChecked,
     isElectronicsChecked,
     isRealEstateChecked,
-    onlyNeedsRevesion,
+    onlyNeedsRevision,
   ]);
 
   return (
-    <Container size="xl" w="100%" px="md" py="xl">
-      <Stack gap="lg" w="100%">
-        <Stack style={{ flexShrink: 0 }} align="flex-start" gap={4}>
+    <Container size="xl" px="md" py="xl">
+      <Stack gap="lg">
+        <Stack align="flex-start" gap={4}>
           <Title order={1}>Мои объявления</Title>
           <Text>Всего объявлений: {totalItems}</Text>
         </Stack>
+
         <Group>
           <TextInput
             placeholder="Найти объявление"
@@ -107,7 +119,7 @@ export const AdsListPage = () => {
               setCurrentPage(1);
               setSearchState(event.currentTarget.value);
             }}
-            style={{ flex: 3 }}
+            className={classes.searchInput}
           />
           <Select
             data={[
@@ -119,11 +131,14 @@ export const AdsListPage = () => {
               { value: "name-down", label: "По названию (от Я до А)" },
             ]}
             value={sortBy}
-            style={{ flex: 1 }}
-            onChange={(value) => setSortBy(value || "newest")}
+            className={classes.sortSelect}
+            onChange={(value) =>
+              setSortBy((value as typeof sortBy) || "newest")
+            }
           />
         </Group>
-        <Flex align="flex-start" gap="md" w="100%">
+
+        <Flex align="flex-start" gap="md">
           <Stack>
             <Card w={200} withBorder radius="md" p="md">
               <Stack align="flex-start" gap="md">
@@ -133,52 +148,42 @@ export const AdsListPage = () => {
                 <Group justify="space-between" align="center">
                   <Text>Категория</Text>
                   <UnstyledButton onClick={toggle}>
-                    {" "}
-                    {}
-                    <Text>
-                      {opened ? "⌃" : "⌄"} {}
-                    </Text>
+                    <Text>{opened ? "⌃" : "⌄"}</Text>
                   </UnstyledButton>
                 </Group>
-
                 <Collapse expanded={opened}>
-                  {" "}
-                  {
-                    <Stack gap="md">
-                      <Checkbox
-                        label="Авто"
-                        checked={isAutoChecked}
-                        onChange={(event) => {
-                          setCurrentPage(1);
-                          setIsAutoChecked(event.currentTarget.checked);
-                        }}
-                      />
-                      <Checkbox
-                        label="Электроника"
-                        checked={isElectronicsChecked}
-                        onChange={(event) => {
-                          setCurrentPage(1);
-                          setIsElectronicsChecked(event.currentTarget.checked);
-                        }}
-                      />
-
-                      <Checkbox
-                        label="Недвижимость"
-                        checked={isRealEstateChecked}
-                        onChange={(event) => {
-                          setCurrentPage(1);
-
-                          setIsRealEstateChecked(event.currentTarget.checked);
-                        }}
-                      />
-                    </Stack>
-                  }
+                  <Stack gap="md">
+                    <Checkbox
+                      label="Авто"
+                      checked={isAutoChecked}
+                      onChange={(event) => {
+                        setCurrentPage(1);
+                        setIsAutoChecked(event.currentTarget.checked);
+                      }}
+                    />
+                    <Checkbox
+                      label="Электроника"
+                      checked={isElectronicsChecked}
+                      onChange={(event) => {
+                        setCurrentPage(1);
+                        setIsElectronicsChecked(event.currentTarget.checked);
+                      }}
+                    />
+                    <Checkbox
+                      label="Недвижимость"
+                      checked={isRealEstateChecked}
+                      onChange={(event) => {
+                        setCurrentPage(1);
+                        setIsRealEstateChecked(event.currentTarget.checked);
+                      }}
+                    />
+                  </Stack>
                 </Collapse>
                 <Divider my="sm" />
                 <Switch
-                  checked={onlyNeedsRevesion}
+                  checked={onlyNeedsRevision}
                   onChange={(event) =>
-                    setOnlyNeedRevesion(event.currentTarget.checked)
+                    setOnlyNeedsRevision(event.currentTarget.checked)
                   }
                   withThumbIndicator={false}
                   color="gray"
@@ -190,20 +195,21 @@ export const AdsListPage = () => {
                 />
               </Stack>
             </Card>
-
             <Button variant="white" color="gray" onClick={handleResetFilters}>
               Сбросить фильтры
             </Button>
           </Stack>
-          <Stack
-            style={{
-              flex: 1,
-              minWidth: 0,
-              overflow: "hidden",
-              minHeight: 520,
-            }}
-          >
-            {paginatedAds.length > 0 ? (
+
+          <Stack className={classes.resultsStack}>
+            {isLoading ? (
+              <Flex className={classes.statusContainer}>
+                <Loader size="lg" />
+              </Flex>
+            ) : error ? (
+              <Flex className={classes.statusContainer}>
+                <Text c="red">{error}</Text>
+              </Flex>
+            ) : paginatedAds.length > 0 ? (
               <SimpleGrid
                 cols={{ base: 1, xs: 2, sm: 3, md: 4, lg: 5 }}
                 spacing="md"
@@ -211,7 +217,7 @@ export const AdsListPage = () => {
                 {paginatedAds.map((ad) => (
                   <AdCard
                     key={ad.id}
-                    id={ad.id}
+                    id={String(ad.id)}
                     title={ad.title}
                     category={ad.category}
                     price={ad.price}
@@ -220,19 +226,10 @@ export const AdsListPage = () => {
                 ))}
               </SimpleGrid>
             ) : (
-              <Flex
-                align="center"
-                justify="center"
-                style={{
-                  flex: 1,
-                  minHeight: 420,
-                  width: "100%",
-                }}
-              >
+              <Flex className={classes.statusContainer}>
                 <Text c="dimmed">Ничего не найдено</Text>
               </Flex>
             )}
-
             <Pagination
               value={Math.min(currentPage, Math.max(totalPages, 1))}
               onChange={setCurrentPage}

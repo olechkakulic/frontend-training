@@ -1,0 +1,42 @@
+.rootContainer {
+    position: relative;
+  }
+  
+  .chatCard {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    width: 360px;
+    max-width: calc(100vw - 32px);
+    z-index: 1000;
+    background: white;
+  }
+  
+  .messagesStack {
+    max-height: 260px;
+    overflow-y: auto;
+  }
+  
+  .messageCard {
+    max-width: 90%;
+  }
+  
+  .userMessageCard {
+    align-self: flex-end;
+  }
+  
+  .assistantMessageCard {
+    align-self: flex-start;
+  }
+  
+  .openChatButton {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 1000;
+  }
+  
+  .nakedCard {
+    border: none;
+    box-shadow: none;
+  }

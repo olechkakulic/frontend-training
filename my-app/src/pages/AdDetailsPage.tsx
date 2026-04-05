@@ -11,7 +11,7 @@ import {
   Box,
   Image,
 } from "@mantine/core";
-import { IconEdit } from "@tabler/icons-react";
+import { IconEdit, IconAlertCircle } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
@@ -20,9 +20,9 @@ import {
   VALUE_LABELS,
 } from "../constants/labels";
 import { formatDate } from "../utils/utils";
-import { IconAlertCircle } from "@tabler/icons-react";
 import type { Ad } from "../types/types";
 import { fetchItemById } from "../api/items";
+import classes from "./AdDetailsPage.module.css";
 
 export const AdDetailsPage = () => {
   const { id } = useParams();
@@ -121,7 +121,7 @@ export const AdDetailsPage = () => {
       <Divider mt={36} />
 
       <Grid mt="md">
-        <Grid.Col span={5}>
+        <Grid.Col span={5} mr={32}>
           <Image src="/images/Главная.png" h={360} alt={ad.title} />
         </Grid.Col>
 
@@ -133,20 +133,9 @@ export const AdDetailsPage = () => {
                 color="orange"
                 title="Требуются доработки"
                 icon={<IconAlertCircle color="orange" />}
-                styles={{
-                  root: {
-                    backgroundColor: "#f9f1e6",
-                    border: "none",
-                    borderRadius: "8px",
-                    padding: "12px 16px",
-                    boxShadow:
-                      "0 9px 28px 8px rgba(0, 0, 0, 0.05), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12)",
-                  },
-                  title: {
-                    color: "#000",
-                    fontSize: "16px",
-                    fontWeight: 600,
-                  },
+                classNames={{
+                  root: classes.alertRoot,
+                  title: classes.alertTitle,
                 }}
               >
                 <Text size="sm" mb="xs" c="black">

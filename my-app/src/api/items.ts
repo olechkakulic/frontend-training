@@ -1,37 +1,35 @@
+import axios from "axios";
+
 export const API_BASE_URL = "http://localhost:8080";
 
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
 export async function fetchItemById(id: string) {
-  const response = await fetch(`${API_BASE_URL}/items/${id}`);
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch item");
+  try {
+    const response = await api.get(`/items/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch item:", error);
+    throw error;
   }
-
-  return response.json();
 }
 
 export async function updateItem(id: string, body: unknown) {
-  const response = await fetch(`${API_BASE_URL}/items/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => null);
-    console.error("Server error:", errorData);
-    throw new Error("Save failed");
+  try {
+    const response = await api.put(`/items/${id}`, body);
+    return response.data;
+  } catch (error) {
+    console.error("Save failed:", error);
+    throw error;
   }
-
-  return response.json().catch(() => null);
 }
 
 export async function fetchItems(queryString: string) {
-    const response = await fetch(`${API_BASE_URL}/items?${queryString}`);
-  
-    if (!response.ok) {
-      throw new Error("Failed to fetch items");
-    }
-  
-    return response.json();
-  }
+  const response = await api.get(`/items?${queryString}`);
+  return response.data;
+}

@@ -1,0 +1,25 @@
+.searchInput {
+    flex: 3;
+  }
+  
+  .sortSelect {
+    flex: 1;
+  }
+  
+  .resultsStack {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    min-height: 520px;
+  }
+  
+  .statusContainer {
+    min-height: 420px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .titleStack {
+    flex-shrink: 0;
+  }

@@ -43,3 +43,11 @@ export interface Ad {
   category: Category;
   params: AutoParams | RealEstateParams | ElectronicsParams;
 }
+
+export interface AdFormValues {
+  category: Category;
+  title: string;
+  price: number;
+  description: string;
+  params: AutoParams | RealEstateParams | ElectronicsParams;
+}
