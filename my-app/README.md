@@ -1,73 +1,193 @@
-# React + TypeScript + Vite
+# AI-ассистент для улучшения объявлений на Авито
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Веб-приложение — личный кабинет продавца с интегрированным AI-ассистентом, который помогает улучшать описания объявлений. Продавец видит список своих объявлений, может их фильтровать, редактировать, а также получать рекомендации от нейросети (рыночная цена, улучшение описания, чат-помощник).
 
-Currently, two official plugins are available:
+## Технологии
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **React 18** + **TypeScript**
+- **React Router DOM** – маршрутизация
+- **Mantine UI** – компоненты интерфейса, темизация
+- **Zustand** – управление состоянием (фильтры, пагинация)
+- **Axios** – HTTP-запросы к серверу
+- **Mantine Form** – управление формами и валидация
+- **Vite** – сборка и разработка
+- **ESLint + Prettier** – линтинг и форматирование кода
+- **Ollama (LLaMA 3)** – локальная генерация текста и цен
 
-## React Compiler
+## Установка и запуск
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Требования
 
-## Expanding the ESLint configuration
+- Node.js 20+
+- npm или yarn
+- Git
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 1. Клонирование репозитория
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+git clone https://github.com/ваш-логин/Avito_Test_Task.git
+cd Avito_Test_Task
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2. Установка зависимостей клиента
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
 ```
+
+### 3. Запуск серверной части (бэкенд)
+
+Сервер предоставлен в тестовом задании, находится в папке server.
+
+```bash
+bash
+cd server
+npm install
+npm start
+```
+
+Сервер запустится на порту 8080. При необходимости порт можно изменить переменной окружения PORT.
+
+### 4. Запуск клиента (в новом терминале)
+
+```bash
+npm run dev
+```
+
+Приложение будет доступно по адресу [http://localhost:5173](http://localhost:5173).
+
+## Настройка AI-функций
+
+Для работы кнопок «Узнать цену», «Придумать описание» и «Чат с AI» требуется запущенная модель LLaMA 3 через Ollama.
+
+### Установка Ollama
+
+Скачайте и установите Ollama с официального сайта
+
+Загрузите модель LLaMA 3:
+
+```bash
+ollama pull llama3
+```
+
+Запустите сервер Ollama (обычно он запускается автоматически):
+
+```bash
+ollama serve
+```
+
+(Если сервер уже запущен, команда выдаст ошибку address already in use – это нормально.)
+
+После этого приложение сможет отправлять запросы к [http://localhost:11434/api/generate](http://localhost:11434/api/generate).
+
+
+## Структура проекта
+src/
+├── api/               # HTTP-запросы (axios)
+├── components/        # Переиспользуемые компоненты
+│   ├── ads/           # Карточка объявления
+│   ├── edit/          # Поля формы (AutoFields, RealEstateFields, ElectronicsFields)
+│   └── ThemeToggle.tsx
+├── constants/         # Словари меток и значений
+├── pages/             # Страницы: AdsListPage, AdDetailsPage, AdEditPage
+├── store/             # Zustand-хранилище (фильтры, пагинация)
+├── types/             # TypeScript-интерфейсы (Ad, Category и др.)
+├── utils/             # Вспомогательные функции (форматирование дат, построение URL)
+├── App.tsx
+├── main.tsx
+└── index.css
+
+## Основные страницы
+
+### 1. Список объявлений /ads
+
+- Поиск по названию
+
+- Сортировка (по новизне, цене, названию)
+
+- Фильтрация по категориям и «Только требующие доработок»
+
+- Пагинация (10 объявлений на страницу)
+
+- Карточки с бейджем «Требует доработок» при незаполненных полях
+
+### 2. Просмотр объявления /ads/:id
+
+- Полная информация: название, цена, даты, изображение, характеристики, описание
+
+- Блок «Требуются доработки» со списком незаполненных полей (если есть)
+
+- Кнопка «Редактировать» → переход на страницу редактирования
+
+### 3. Редактирование объявления /ads/:id/edit
+
+- Форма с обязательными полями (категория, название, цена) и динамическими характеристиками (зависят от категории)
+
+- Кнопка «Узнать рыночную цену» – AI предлагает диапазон и рекомендуемую цену
+
+- Кнопка «Придумать описание» / «Улучшить описание» – AI генерирует текст
+
+- Чат с AI (дополнительная функциональность) – можно задавать вопросы по текущему объявлению
+
+- Сохранение черновика в localStorage (восстановление при обновлении страницы)
+
+- Валидация полей (название, цена)
+
+## Реализованные дополнительные возможности (со звёздочкой)
+
+- Чат с AI – плавающее окно на странице редактирования, история сообщений, контекст объявления передаётся автоматически.
+
+- Тёмная тема – переключатель в футере, выбор сохраняется в localStorage.
+
+- Визуальное сравнение – не реализовано (не входило в мои задачи).
+
+- Docker Compose – не реализовано (сервер запускается отдельно).
+
+## Принятые самостоятельные решения
+
+- Стейт-менеджмент - Zustand выбран за простоту и минимальный бойлерплейт, идеально подходит для фильтров и пагинации.
+
+- UI-библиотека – Mantine, так как она предоставляет готовые компоненты (Popover, Collapse, Pagination) и легко кастомизируется через CSS-модули.
+
+- Работа с формами - @mantine/form обеспечивает удобную валидацию и привязку к полям.
+
+- AI-промпты - для цены запрашивается структурированный ответ с диапазонами, для описания – естественный текст (2–4 предложения). Ответ парсится для извлечения рекомендуемой цены.
+
+- Очищаемые поля – созданы компоненты-обёртки ClearableTextInput и ClearableNumberInput для единообразия.
+
+- Локальное хранилище – черновик формы сохраняется при каждом изменении и восстанавливается при перезагрузке страницы (если не было успешного сохранения).
+
+- Все AI-функции работают только при активном локальном сервере Ollama.
+
+## Запуск линтера и форматтера
+
+```bash
+npm run lint     
+npx prettier --write src 
+```
+
+## Доработки серверной части
+
+В процессе выполнения задания выяснилось, что предоставленный сервер (папка `server`) не полностью соответствовал требованиям клиентской части:
+
+- Отсутствовала сортировка по цене (`price`).
+- В ответе `GET /items` не возвращался `id` объявления, что делало невозможным переход на страницу редактирования и просмотра.
+- CORS был настроен через middleware, что могло вызывать проблемы с некоторыми типами запросов (например, `PUT`).
+
+### Внесённые изменения (файл `server/server.ts`)
+
+1. **Добавлена сортировка по цене**
+  В обработчик `GET /items` добавлена ветка `else if (sortColumn === 'price')`, которая сортирует объявления по полю `price` (с учётом `null` значений – они трактуются как 0).  
+   Теперь клиент может запросить `?sortColumn=price&sortDirection=asc` или `desc`.
+2. **Возврат `id` в списке объявлений**
+  В методе `.map()` при формировании ответа добавлено поле `id: item.id`. Это позволило клиенту получать идентификатор объявления прямо из списка и строить корректные ссылки на карточку и редактирование.
+
+1. **Улучшенная настройка CORS**  
+Вместо самодельного middleware использован официальный плагин `@fastify/cors` с явным указанием разрешённых методов (`GET, PUT, POST, DELETE, OPTIONS`). Это гарантирует корректную обработку предварительных (preflight) запросов для `PUT` и других методов.
+
+### **Почему это было сделано?**
+
+- **Сортировка по цене** – требование технического задания (пункт «Сортировка (например, по новизне, по цене)»). Без этого клиент не мог реализовать соответствующую функциональность.
+- **Возврат** `id` – без идентификатора в ответе списка невозможно было построить маршруты вида `/ads/:id` и `/ads/:id/edit`, что нарушало навигацию приложения.
+- **CORS через плагин** – стандартный `@fastify/cors` более надёжен, поддерживает предварительные запросы и упрощает конфигурацию. Без этого браузер мог блокировать `PUT`-запросы при редактировании объявления.
+
