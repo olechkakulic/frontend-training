@@ -7,7 +7,6 @@ export const ClearableTextInput = (props: TextInputProps) => {
   
     const handleClear = () => {
       if (typeof onChange === 'function') {
-        // Используем двойное приведение: сначала к unknown, потом к нужному нам типу
         const mantineFormHandler = onChange as unknown as (value: string) => void;
         mantineFormHandler("");
       }
@@ -45,7 +44,6 @@ export const ClearableNumberInput = (props: NumberInputProps) => {
         value !== undefined && value !== "" && (
           <ActionIcon
             variant="transparent"
-            // У NumberInput в Mantine onChange и так принимает (string | number)
             onClick={() => onChange?.("")}
             aria-label="Очистить"
           >

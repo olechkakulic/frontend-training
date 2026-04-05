@@ -1,4 +1,4 @@
-export const LabelWithLeftAsterisk = ({ label, required }) => {
+export const LabelWithLeftAsterisk = ({ label, required }: { label: string; required?: boolean }) => {
   if (!required) return label;
   
   return (
@@ -7,4 +7,4 @@ export const LabelWithLeftAsterisk = ({ label, required }) => {
       {label}
     </span>
   );
-}
+};

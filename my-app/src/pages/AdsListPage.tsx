@@ -17,7 +17,7 @@ import {
   Flex,
   Loader,
 } from "@mantine/core";
-import classes from "./AdsListPage.module.css"; // импорт CSS-модуля
+import classes from "./AdsListPage.module.css"; 
 import { Container } from "@mantine/core";
 import { IconSearch } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
