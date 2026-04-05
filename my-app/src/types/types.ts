@@ -35,14 +35,6 @@ export interface ElectronicsParams {
   color?: string;
 }
 
-export interface Ad {
-  id: number;
-  title: string;
-  description?: string;
-  price: number;
-  category: Category;
-  params: AutoParams | RealEstateParams | ElectronicsParams;
-}
 
 export interface AdFormValues {
   category: Category;

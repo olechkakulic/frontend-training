@@ -17,7 +17,7 @@ import {
   Flex,
   Loader,
 } from "@mantine/core";
-import classes from "./AdsListPage.module.css"; 
+import classes from "./AdsListPage.module.css";
 import { Container } from "@mantine/core";
 import { IconSearch } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
@@ -132,9 +132,10 @@ export const AdsListPage = () => {
             ]}
             value={sortBy}
             className={classes.sortSelect}
-            onChange={(value) =>
-              setSortBy((value as typeof sortBy) || "newest")
-            }
+            onChange={(value) => {
+              setCurrentPage(1);
+              setSortBy((value as typeof sortBy) || "newest");
+            }}
           />
         </Group>
 
@@ -182,9 +183,10 @@ export const AdsListPage = () => {
                 <Divider my="sm" />
                 <Switch
                   checked={onlyNeedsRevision}
-                  onChange={(event) =>
-                    setOnlyNeedsRevision(event.currentTarget.checked)
-                  }
+                  onChange={(event) => {
+                    setCurrentPage(1);
+                    setOnlyNeedsRevision(event.currentTarget.checked);
+                  }}
                   withThumbIndicator={false}
                   color="gray"
                   labelPosition="left"

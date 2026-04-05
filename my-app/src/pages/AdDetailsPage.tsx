@@ -79,7 +79,9 @@ export const AdDetailsPage = () => {
     );
   }
 
-  const emptyFields = CATEGORY_FIELDS[ad.category].filter((key) => {
+  const categoryFields = CATEGORY_FIELDS[ad.category] ?? [];
+
+  const emptyFields = categoryFields.filter((key) => {
     const value = ad.params[key as keyof typeof ad.params];
     return value === undefined || value === null || value === "";
   });
