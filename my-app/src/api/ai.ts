@@ -1,11 +1,12 @@
-import axios from "axios"; 
+import axios from "axios";
 import {
   buildChatPrompt,
   buildDescriptionPrompt,
   buildPricePrompt,
 } from "./lib/aiPrompts";
 
-const OLLAMA_BASE_URL = "http://localhost:11434";
+const OLLAMA_BASE_URL =
+  import.meta.env.VITE_OLLAMA_URL || "http://localhost:11434";
 const OLLAMA_MODEL = "llama3";
 
 type ChatMessage = {
@@ -41,15 +42,16 @@ async function generateFromAi(prompt: string) {
       stream: false,
     });
 
-
     return response.data.response?.trim?.() ?? "";
-    
   } catch (error) {
     console.error("Ollama API error:", error);
-    
+
     if (axios.isAxiosError(error)) {
-       throw new Error(`Ollama error: ${error.response?.status} - ${error.message}`);
+      throw new Error(
+        `Ollama error: ${error.response?.status} - ${error.message}`,
+      );
     }
+
     throw error;
   }
 }
